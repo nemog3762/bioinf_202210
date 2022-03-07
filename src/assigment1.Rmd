@@ -1,1 +1,72 @@
+---
+title: "assigment1"
+output: html_document
+---
 
+# Punto 2
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Instalación de librerías necesarias
+
+Se detallan en un vector las librerías necesarias para la ejecución del código.
+
+```{r librerias_listar}
+## First specify the packages of interest
+packages = c("treemapify", "ggplot2")
+```
+
+Las librerías definidas en el anterior paso se instalan en caso de no estarlo y se cargan.
+```{r librerias_instalar, warning=FALSE}
+package.check <- lapply(
+  packages,
+  FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+      install.packages(x, dependencies = TRUE)
+      library(x, character.only = TRUE)
+    }
+  }
+)
+```
+
+## Lectura de datos y summary
+
+Se leen los datasets definidos en clase. Si no están descargados, se descargan.
+
+```{r datos_lectura}
+
+if(!file.exists("condition_occurrence.csv")){
+    download.file("https://physionet.org/files/mimic-iv-demo-omop/0.9/1_omop_data_csv/condition_occurrence.csv", "condition_occurrence.csv")
+}
+
+if(!file.exists("procedure_occurrence.csv")){
+    download.file("https://physionet.org/files/mimic-iv-demo-omop/0.9/1_omop_data_csv/procedure_occurrence.csv", "procedure_occurrence.csv")
+}
+
+condition_occurrence = read.csv("condition_occurrence.csv")
+procedure_occurrence = read.csv("procedure_occurrence.csv")
+```
+
+Se muestra en pantalla un summary de los datos.
+
+```{r datos_summary}
+summary(condition_occurrence)
+summary(procedure_occurrence)
+```
+
+## Graficación de datos
+
+Debido a la longitud de los datos (16441 filas para el dataset condition_occurrence y 18447 filas para el dataset procedure_occurrence), se crean dos nuevos datasets que son de longitud 1000 filas de los datasets originales.  
+
+```{r datos_subsets}
+condition_occurrence1 = head(condition_occurrence, 1000)
+procedure_occurrence1 = head(procedure_occurrence, 1000)
+```
+
+Se grafican los datasets generados.
+```{r datos_graficacion, warning=FALSE}
+ggplot(condition_occurrence1, aes(area = condition_occurrence1$condition_concept_id, fill = condition_occurrence1$condition_type_concept_id)) + geom_treemap()
+ggplot(procedure_occurrence1, aes(area = procedure_occurrence1$procedure_concept_id, fill = procedure_occurrence1$procedure_type_concept_id)) + geom_treemap()
+```
